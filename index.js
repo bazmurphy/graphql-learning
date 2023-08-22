@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 // import the Apollo Server framework
 import { ApolloServer } from "@apollo/server";
 // import the Standalone Server for Apollo Server
@@ -25,7 +27,7 @@ const server = new ApolloServer({
 // and destructure the url from it
 const { url } = await startStandaloneServer(server, {
   // setup the specific port to listen on
-  listen: { port: 4000 },
+  listen: { port: process.env.PORT },
 });
 
 console.log(`Server running at: ${url}`);
