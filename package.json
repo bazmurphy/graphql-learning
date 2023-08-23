@@ -4,9 +4,9 @@
   "description": "graphql-learning",
   "main": "index.js",
   "scripts": {
-    "compile": "npx tsc",
+    "compile": "tsc",
     "start": "npm run compile && node ./dist/index.js",
-    "watch": "npx tsc --watch",
+    "watch": "tsc --watch",
     "dev": "nodemon ./dist/index.js"
   },
   "keywords": [],
