@@ -77,11 +77,18 @@ export const typeDefs = `#graphql
     deleteGame(id: ID!): [Game]
     # [3] we can now use the custom input type "AddGameInput" to ensure the resolver argument passed matches that type
     addGame(game: AddGameInput!): Game
+    # we require an id, and then the values we want to update, and a Return Type
+    updateGame(id: ID!, updates: UpdateGameInput): Game
   }
   # [2] we create a new "input" type in our Schema which allows us to group a collection of fields
   # and that can be used as a single argument elsewhere eg. in a resolver function
   input AddGameInput {
     title: String!,
     platform: [String!]!
+  }
+  input UpdateGameInput {
+    # we remove the required ! from both of these so you can optionally update either
+    title: String,
+    platform: [String!]
   }
 `;

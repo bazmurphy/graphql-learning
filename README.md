@@ -438,7 +438,7 @@ query ReviewQuery($id: ID!) {
 }
 ```
 
-13. Mutations
+13. Mutations (Add & Delete)
 
 A mutation is a generic term in GraphQL for any kind of change (Add/Delete/Edit) that we want to make to the date.
 
@@ -580,11 +580,11 @@ export const typeDefs = `#graphql
 `
 ```
 
-In `resolvers.js` inside the `Mutation` resolver object we create an `addGame()` resolver function
-We create a new game object, spread in the `args` using the `.game` as that is the name of the parameter we defined in the `typeDefs` `Mutation` `addGame(game: AddGameInput!)`
-In this case the `args` contain `title` & `platform` key/values
-Then add a randomly generated `id`
-And return the newly added Game as the response.
+In `resolvers.js` inside the `Mutation` resolver object we create an `addGame()` resolver function  
+We create a new game object, spread in the `args` using the `.game` as that is the name of the parameter we defined in the `typeDefs` `Mutation` `addGame(game: AddGameInput!)`  
+In this case the `args` contain `title` & `platform` key/values  
+Then add a randomly generated `id`  
+And return the newly added Game as the response
 
 ```
 export const resolvers = {
@@ -646,6 +646,122 @@ Response:
   "data": {
     "addGame": {
       "title": "CS:GO",
+      "platform": [
+        "PC"
+      ]
+    }
+  }
+}
+```
+
+15. Mutation (Update)
+
+In `schema.js` we create `updateGame` in `Mutation`  
+It takes in an `id` of type `ID` and is required  
+It also takes in an `updates` of type `UpdateGameInput` and is required  
+It returns a `Game` type
+
+We create `UpdateGameInput` as an `input`  
+And we specify that it can optionally have a `title` of type `String`  
+and/or a `platform` of type Array of `String`(required)
+
+```
+export const typeDefs = `#graphql
+  type Game {
+    ...
+  }
+  type Author {
+    ...
+  }
+  type Review {
+    ...
+  }
+  type Query {
+    ...
+  }
+  type Mutation {
+    ...
+    # we require an id, and then the values we want to update, and a Return Type
+    updateGame(id: ID!, updates: UpdateGameInput!): Game
+  }
+  input AddGameInput {
+    ...
+  }
+  input UpdateGameInput {
+    # we remove the required ! from both of these so you can optionally update either
+    title: String,
+    platform: [String!]
+  }
+`
+```
+
+In `resolvers.js` in `Mutation` we create `updateGame()`  
+Where we map over the `database.games` array and if the `game` `id` matches the `args` `id`  
+Then we spread in the original game object and then spread in the `args` `updates`  
+And finally re-assign the new array back to the `database.games`  
+Then we find that game in the database and return it
+
+```
+export const resolvers = {
+  Query: {
+    ...
+  },
+  Game: {
+    ...
+  },
+  Author: {
+    ...
+  },
+  Review: {
+    ...
+  },
+  Mutation: {
+    ...
+    updateGame(parent, args, contextValue, info) {
+      database.games = database.games.map((game) => {
+        if (game.id === args.id) {
+          return { ...game, ...args.updates };
+        }
+        return game;
+      });
+      return database.games.find((game) => game.id === args.id);
+    },
+  },
+};
+```
+
+Mutation:
+
+```
+mutation UpdateGame($id: ID!, $updates: UpdateGameInput!,) {
+  updateGame(id: $id, updates: $updates) {
+    id,
+    title,
+    platform
+  }
+}
+```
+
+Variables:
+
+```
+{
+  "id": "5",
+  "updates": {
+    "title": "CS2"
+    "platform": ["PC"]
+  }
+}
+```
+
+Response:
+
+```
+{
+  "data": {
+    "updateGame": {
+      "id": "5",
+      "title": "CS2",
       "platform": [
         "PC"
       ]

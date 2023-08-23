@@ -84,5 +84,19 @@ export const resolvers = {
       database.games.push(newGame);
       return newGame;
     },
+    updateGame(parent, args, contextValue, info) {
+      // map over the games array
+      database.games = database.games.map((game) => {
+        // if the game.id matches the args.id
+        if (game.id === args.id) {
+          // then update the specific game with the updates object passed as the second argument to the resolver function
+          return { ...game, ...args.updates };
+        }
+        // otherwise return the original game object
+        return game;
+      });
+      // then we find that game in the database and return it
+      return database.games.find((game) => game.id === args.id);
+    },
   },
 };
