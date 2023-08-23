@@ -1,15 +1,17 @@
-// RESOLVER functions are there to handle any query requests and return data to the client
-// we make resolver functions for each different type that we defined
-// to begin with make a resolver function for the "Query" type
-
 import {
   GameIdType,
+  AuthorType,
+  ReviewType,
   GameType,
   AddGamePropsType,
   UpdateGamePropsType,
 } from "./types.js";
 
 import database from "./database.js";
+
+// RESOLVER functions are there to handle any query requests and return data to the client
+// we make resolver functions for each different type that we defined
+// to begin with make a resolver function for the "Query" type
 
 export const resolvers = {
   // we use a property name that MATCHES the TypeDef
@@ -18,9 +20,11 @@ export const resolvers = {
     games() {
       return database.games;
     },
+
     authors() {
       return database.authors;
     },
+
     reviews() {
       return database.reviews;
     },
@@ -33,13 +37,15 @@ export const resolvers = {
 
     // resolverFunction(parent, args, contextValue, info)
 
-    game(parent: any, args: GameIdType) {
+    game(parent: any, args: GameIdType): GameType {
       return database.games.find((game) => game.id === args.id);
     },
-    author(parent: any, args: GameIdType) {
+
+    author(parent: any, args: GameIdType): AuthorType {
       return database.authors.find((author) => author.id === args.id);
     },
-    review(parent: any, args: GameIdType) {
+
+    review(parent: any, args: GameIdType): ReviewType {
       return database.reviews.find((review) => review.id === args.id);
     },
   },
@@ -48,6 +54,7 @@ export const resolvers = {
   // Apollo will run the initial resolver function game() inside the Query object to get that single game
   // then to resolve the reviews for that Game it will look to the Game object
   // and then will look for the reviews resolver inside of that to get the reviews
+
   Game: {
     // and make a new resolver function
     // to get all the reviews based on the PARENT Query for the single Game
@@ -59,6 +66,7 @@ export const resolvers = {
       return database.reviews.filter((review) => review.game_id === parent.id);
     },
   },
+
   Author: {
     // get all the reviews from the specific author
     // the return value from author() from the Query object above is the parent argument so we can access the id
@@ -68,21 +76,25 @@ export const resolvers = {
       );
     },
   },
+
   Review: {
-    game(parent: any) {
+    game(parent: ReviewType): GameType {
       // a single review is associated to a single game (1 to 1 relationship)
       return database.games.find((game) => game.id === parent.game_id);
     },
-    author(parent: any) {
+
+    author(parent: ReviewType): AuthorType {
       // a single review is associated to a single author (1 to 1 relationship)
       return database.authors.find((author) => author.id === parent.author_id);
     },
   },
+
   Mutation: {
     deleteGame(parent: any, args: GameIdType) {
       database.games = database.games.filter((game) => game.id !== args.id);
       return database.games;
     },
+
     addGame(parent: any, args: AddGamePropsType) {
       const newGame: GameType = {
         // spread out the args (title & platform)
@@ -94,6 +106,7 @@ export const resolvers = {
       database.games.push(newGame);
       return newGame;
     },
+
     updateGame(parent: any, args: UpdateGamePropsType): GameType {
       // map over the games array
       database.games = database.games.map((game) => {
