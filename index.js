@@ -1,5 +1,4 @@
 import "dotenv/config";
-
 // import the Apollo Server framework
 import { ApolloServer } from "@apollo/server";
 // import the Standalone Server for Apollo Server

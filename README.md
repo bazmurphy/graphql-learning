@@ -437,3 +437,219 @@ query ReviewQuery($id: ID!) {
   }
 }
 ```
+
+13. Mutations
+
+A mutation is a generic term in GraphQL for any kind of change (Add/Delete/Edit) that we want to make to the date.
+
+We make a new Type in the `schema.js` called `Mutation`
+
+```
+export const typeDefs = `#graphql
+  type Game {
+    ...
+  }
+  type Author {
+    ...
+  }
+  type Review {
+    ...
+  }
+  type Query {
+    ...
+  }
+  type Mutation {
+    # we define a mutation, proving parameters and type (if neccessary) AND Return Type
+    deleteGame(id: ID!): [Game]
+  }
+`
+```
+
+We create a Resolver Object `Mutation` in `resolvers.js`
+And create a function to handle `deleteGame()`
+
+```
+export const resolvers = {
+  Query: {
+    ...
+  },
+  Game: {
+    ...
+  },
+  Author: {
+    ...
+  },
+  Review: {
+    ...
+  },
+  Mutation: {
+    deleteGame(parent, args, contextValue, info) {
+      database.games = database.games.filter((game) => game.id !== args.id);
+      return database.games;
+    },
+  },
+};
+```
+
+When making the mutation we use the word `mutation` instead of `query`
+
+Mutation:
+
+```
+mutation DeleteGame($id: ID!) {
+  deleteGame(id: $id) {
+    id,
+    title,
+    platform
+  }
+}
+```
+
+Response: (we get back the games list with that specific game removed)
+
+```
+{
+  "data": {
+    "deleteGame": [
+      {
+        "id": "1",
+        "title": "Zelda, Tears of the Kingdom",
+        "platform": [
+          "Switch"
+        ]
+      },
+      {
+        "id": "3",
+        "title": "Elden Ring",
+        "platform": [
+          "PS5",
+          "Xbox",
+          "PC"
+        ]
+      },
+      {
+        "id": "4",
+        "title": "Mario Kart",
+        "platform": [
+          "Switch"
+        ]
+      },
+      {
+        "id": "5",
+        "title": "Pokemon Scarlet",
+        "platform": [
+          "PS5",
+          "Xbox",
+          "PC"
+        ]
+      }
+    ]
+  }
+}
+```
+
+In `schema.js` inside `Mutation` we can define another mutation function `addGame()`
+But in this case we need to define the parameter and its type.
+For this we can create a custom `input` type called `AddGameInput` where we describe the shape of the object (a collection of fields)
+
+```
+export const typeDefs = `#graphql
+  type Game {
+    ...
+  }
+  type Author {
+    ...
+  }
+  type Review {
+    ...
+  }
+  type Query {
+    ...
+  }
+  type Mutation {
+    ....
+    # [2] we can now use the custom input type "AddGameInput" to ensure the resolver argument passed matches that type
+    addGame(game: AddGameInput!): Game
+  }
+  # [1] we create a new "input" type in our Schema which allows us to group a collection of fields
+  # and that can be used as a single argument elsewhere eg. in a resolver function
+  input AddGameInput {
+    title: String!,
+    platform: [String!]!
+  }
+`
+```
+
+In `resolvers.js` inside the `Mutation` resolver object we create an `addGame()` resolver function
+We create a new game object, spread in the `args` using the `.game` as that is the name of the parameter we defined in the `typeDefs` `Mutation` `addGame(game: AddGameInput!)`
+In this case the `args` contain `title` & `platform` key/values
+Then add a randomly generated `id`
+And return the newly added Game as the response.
+
+```
+export const resolvers = {
+  Query: {
+    ...
+  },
+  Game: {
+    ...
+  },
+  Author: {
+    ...
+  },
+  Review: {
+    ...
+  },
+  Mutation: {
+    ...
+    addGame(parent, args, contextValue, info) {
+      const newGame = {
+        // spread out the args (title & platform)
+        // it is .game because that is the name of the parameter we specificied on the typeDefs Mutation addGame(game: AddGameInput!)
+        ...args.game,
+        // add a random id
+        id: Math.floor(Math.random() * 10000).toString(),
+      };
+      database.games.push(newGame);
+      return newGame;
+    },
+  },
+};
+```
+
+Mutation:
+
+```
+mutation AddGame($game: AddGameInput!) {
+  addGame(game: $game) {
+    title,
+    platform
+  }
+}
+```
+
+Variables:
+
+```
+{
+  "game": {
+    "title": "CS:GO",
+    "platform": ["PC"]
+  }
+}
+```
+
+Response:
+
+```
+{
+  "data": {
+    "addGame": {
+      "title": "CS:GO",
+      "platform": [
+        "PC"
+      ]
+    }
+  }
+}
+```

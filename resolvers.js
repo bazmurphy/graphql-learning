@@ -68,6 +68,21 @@ export const resolvers = {
       return database.authors.find((author) => author.id === parent.author_id);
     },
   },
+  Mutation: {
+    deleteGame(parent, args, contextValue, info) {
+      database.games = database.games.filter((game) => game.id !== args.id);
+      return database.games;
+    },
+    addGame(parent, args, contextValue, info) {
+      const newGame = {
+        // spread out the args (title & platform)
+        // it is .game because thats the name of the variable in Mutation where we specificied addGame(game: AddGameInput!)
+        ...args.game,
+        // add a random id
+        id: Math.floor(Math.random() * 10000).toString(),
+      };
+      database.games.push(newGame);
+      return newGame;
+    },
+  },
 };
-
-// Apollo Server will automatically remove the fields that aren't specified

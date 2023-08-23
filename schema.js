@@ -53,7 +53,7 @@ export const typeDefs = `#graphql
     # [2] relationship:
     reviews: [Review!] # we don't need to make this required (use ! on the end) because the author might not have made any reviews
   }
-    type Review {
+  type Review {
     id: ID!
     rating: Int!
     content: String!
@@ -71,5 +71,17 @@ export const typeDefs = `#graphql
     game(id: ID!): Game
     author(id: ID!): Author
     review(id: ID!): Review
+  }
+  type Mutation {
+    # [1] we define a mutation, proving parameters and type (if neccessary) AND Return Type
+    deleteGame(id: ID!): [Game]
+    # [3] we can now use the custom input type "AddGameInput" to ensure the resolver argument passed matches that type
+    addGame(game: AddGameInput!): Game
+  }
+  # [2] we create a new "input" type in our Schema which allows us to group a collection of fields
+  # and that can be used as a single argument elsewhere eg. in a resolver function
+  input AddGameInput {
+    title: String!,
+    platform: [String!]!
   }
 `;
