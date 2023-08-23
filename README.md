@@ -77,7 +77,7 @@ query GamesQuery {
 
 Response:
 
-```graphql
+```json
 {
    "data": {
       "games": [
