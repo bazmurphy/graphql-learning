@@ -23,13 +23,13 @@ export const resolvers = {
     // [2] args - an object that contains all GraphQL arguments provided for this field.
     // [3] context - context for supplying context values across all of our resolvers (such as authentication information)
     // [4] info - contains information about the operation's execution state, including the field name, the path to the field from the root, and more.
-    game(parent, args, contextValue, info) {
+    game(parent: any, args: any, contextValue: any, info: any) {
       return database.games.find((game) => game.id === args.id);
     },
-    author(parent, args, contextValue, info) {
+    author(parent: any, args: any, contextValue: any, info: any) {
       return database.authors.find((author) => author.id === args.id);
     },
-    review(parent, args, contextValue, info) {
+    review(parent: any, args: any, contextValue: any, info: any) {
       return database.reviews.find((review) => review.id === args.id);
     },
   },
@@ -45,35 +45,35 @@ export const resolvers = {
     // the parent argument is a reference to the value returned by the previous (or parent) resolver
     // in this case the game() resolver function inside the Query object
     // that parent argument will therefore be a game object, which will have an id, which we can use
-    reviews(parent, args, contextValue, info) {
+    reviews(parent: any, args: any, contextValue: any, info: any) {
       return database.reviews.filter((review) => review.game_id === parent.id);
     },
   },
   Author: {
     // get all the reviews from the specific author
     // the return value from author() from the Query object above is the parent argument so we can access the id
-    reviews(parent, args, contextValue, info) {
+    reviews(parent: any, args: any, contextValue: any, info: any) {
       return database.reviews.filter(
         (review) => review.author_id === parent.id
       );
     },
   },
   Review: {
-    game(parent, args, contextValue, info) {
+    game(parent: any, args: any, contextValue: any, info: any) {
       // a single review is associated to a single game (1 to 1 relationship)
       return database.games.find((game) => game.id === parent.game_id);
     },
-    author(parent, args, contextValue, info) {
+    author(parent: any, args: any, contextValue: any, info: any) {
       // a single review is associated to a single author (1 to 1 relationship)
       return database.authors.find((author) => author.id === parent.author_id);
     },
   },
   Mutation: {
-    deleteGame(parent, args, contextValue, info) {
+    deleteGame(parent: any, args: any, contextValue: any, info: any) {
       database.games = database.games.filter((game) => game.id !== args.id);
       return database.games;
     },
-    addGame(parent, args, contextValue, info) {
+    addGame(parent: any, args: any, contextValue: any, info: any) {
       const newGame = {
         // spread out the args (title & platform)
         // it is .game because thats the name of the variable in Mutation where we specificied addGame(game: AddGameInput!)
@@ -84,7 +84,7 @@ export const resolvers = {
       database.games.push(newGame);
       return newGame;
     },
-    updateGame(parent, args, contextValue, info) {
+    updateGame(parent: any, args: any, contextValue: any, info: any) {
       // map over the games array
       database.games = database.games.map((game) => {
         // if the game.id matches the args.id
