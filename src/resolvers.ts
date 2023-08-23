@@ -2,6 +2,8 @@
 // we make resolver functions for each different type that we defined
 // to begin with make a resolver function for the "Query" type
 
+import { Game } from "./types.js";
+
 import database from "./database.js";
 
 export const resolvers = {
@@ -74,7 +76,7 @@ export const resolvers = {
       return database.games;
     },
     addGame(parent: any, args: any, contextValue: any, info: any) {
-      const newGame = {
+      const newGame: Game = {
         // spread out the args (title & platform)
         // it is .game because thats the name of the variable in Mutation where we specificied addGame(game: AddGameInput!)
         ...args.game,
