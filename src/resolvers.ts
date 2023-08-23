@@ -1,6 +1,6 @@
 import {
   GameIdType,
-  // AuthorType,
+  AuthorType,
   ReviewType,
   GameType,
   AddGamePropsType,
@@ -62,7 +62,7 @@ export const resolvers = {
     // the parent argument is a reference to the value returned by the previous (or parent) resolver
     // in this case the game() resolver function inside the Query object
     // that parent argument will therefore be a game object, which will have an id, which we can use
-    reviews(parent: any) {
+    reviews(parent: GameType) {
       return database.reviews.filter((review) => review.game_id === parent.id);
     },
   },
@@ -70,7 +70,7 @@ export const resolvers = {
   Author: {
     // get all the reviews from the specific author
     // the return value from author() from the Query object above is the parent argument so we can access the id
-    reviews(parent: any) {
+    reviews(parent: AuthorType) {
       return database.reviews.filter(
         (review) => review.author_id === parent.id
       );
@@ -84,6 +84,7 @@ export const resolvers = {
     },
 
     author(parent: ReviewType) {
+      console.log("parent456:", parent);
       // a single review is associated to a single author (1 to 1 relationship)
       return database.authors.find((author) => author.id === parent.author_id);
     },
