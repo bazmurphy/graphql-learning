@@ -1,8 +1,8 @@
 import {
   GameIdType,
+  GameType,
   AuthorType,
   ReviewType,
-  GameType,
   AddGamePropsType,
   UpdateGamePropsType,
 } from "./types.js";
