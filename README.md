@@ -30,21 +30,21 @@ these are descriptions of our data types and the relationship they have with oth
 [2] **Resolvers**
 these are a bunch of resolve functions that determine how we respond to queries for different data on the graph
 
-```
+```js
 const server = new ApolloServer({
-// [1] Type Definitions
-typeDefs,
-// [2] Resolvers
-resolvers,
+  // [1] Type Definitions
+  typeDefs,
+  // [2] Resolvers
+  resolvers,
 });
 ```
 
 6. start the standalone server with the instance from above, // and destructure the url from it
 
-```
+```js
 const { url } = await startStandaloneServer(server, {
-   // setup the specific port to listen on
-   listen: { port: 4000 },
+  // setup the specific port to listen on
+  listen: { port: 4000 },
 });
 
 console.log(`Server running at: ${url}`);
@@ -66,19 +66,18 @@ console.log(`Server running at: ${url}`);
 
 Query Example:
 
-```
+```graphql
 query GamesQuery {
-   games {
-      title,
-      platform
-   }
+  games {
+    title
+    platform
+  }
 }
-
 ```
 
 Response:
 
-```
+```graphql
 {
    "data": {
       "games": [
@@ -105,7 +104,7 @@ We automatically get 4 variables available to use in these functions that we can
 
 `schema.js`
 
-```
+```graphql
 type Query {
    ...
    # to query individual game, author or review we need to use Query Variables
@@ -118,7 +117,7 @@ type Query {
 
 `resolvers.js`
 
-```
+```js
 export const resolvers = {
    Query: {
       ...
@@ -140,34 +139,31 @@ Query Individual Example:
 When making the query we use a ($variable: type)
 and then on the Type we pass that in (id: $variable)
 
-```
+```graphql
 query GameQuery($id: ID!) {
-   game(id: $id) {
-     title,
-     platform
-   }
+  game(id: $id) {
+    title
+    platform
+  }
 }
 ```
 
 In Apollo Sandbox (to mock a client request with a body) we provide in **Variables** as JSON Object such as:
 
-```
+```json
 {
-   "id": "2"
+  "id": "2"
 }
 ```
 
 Response:
 
-```
+```json
 {
   "data": {
     "game": {
       "title": "Final Fantasy 7 Remake",
-      "platform": [
-        "PS5",
-        "Xbox"
-      ]
+      "platform": ["PS5", "Xbox"]
     }
   }
 }
@@ -181,7 +177,7 @@ We need to define the relationships in the Schema between the data, so Apollo kn
 
 In the `schema.js` we define the relations:
 
-```
+```graphql
 export const typeDefs = `#graphql
   type Game {
     ...
@@ -218,9 +214,9 @@ So we filter for all the reviews that match the game id
 
 We do the same for `Author`
 
-```
+```js
 export const resolvers = {
-   Query: {
+  Query: {
     ...
   }
   Game: {
@@ -242,21 +238,21 @@ We can then run Queries where we ask for the `reviews` as well:
 
 Query Game with Reviews:
 
-```
+```graphql
 query GameQuery($id: ID!) {
-   game(id: $id) {
-     title,
-     reviews {
-       rating,
-       content
-     }
-   }
+  game(id: $id) {
+    title
+    reviews {
+      rating
+      content
+    }
+  }
 }
 ```
 
 Response:
 
-```
+```json
 {
   "data": {
     "game": {
@@ -278,22 +274,22 @@ Response:
 
 Query Author with Reviews:
 
-```
+```graphql
 query AuthorQuery($id: ID!) {
-   author(id: $id) {
-     name,
-     verified
-     reviews {
-       rating,
-       content
-     }
-   }
+  author(id: $id) {
+    name
+    verified
+    reviews {
+      rating
+      content
+    }
+  }
 }
 ```
 
 Response:
 
-```
+```json
 {
   "data": {
     "author": {
@@ -320,7 +316,7 @@ one for `game` to provide the game the review is related to
 another for `author` to provide the author of the review
 We again use the `parent` argument object and this time use the `game_id` and `author_id` that exist on it.
 
-```
+```js
 export const resolvers = {
   Query: {
     ...
@@ -346,13 +342,13 @@ export const resolvers = {
 
 Query Reviews with Game and Author:
 
-```
+```graphql
 query ReviewQuery($id: ID!) {
   review(id: $id) {
-    rating,
+    rating
     content
     game {
-      title,
+      title
       platform
     }
     author {
@@ -364,7 +360,7 @@ query ReviewQuery($id: ID!) {
 
 Response:
 
-```
+```json
 {
   "data": {
     "review": {
@@ -372,10 +368,7 @@ Response:
       "content": "lorem ipsum",
       "game": {
         "title": "Final Fantasy 7 Remake",
-        "platform": [
-          "PS5",
-          "Xbox"
-        ]
+        "platform": ["PS5", "Xbox"]
       },
       "author": {
         "name": "mario",
@@ -397,14 +390,16 @@ Then we get all the `reviews` using the `game_id` from the parent `review` (the 
 So the Resolver Chain is:  
 `Query` `reviews(id)` --> `Review` `game(parent.game_id)` --> `Game` `reviews(parent.game_id)`
 
-```
+Query Reviews with Game and Reviews
+
+```graphql
 query ReviewQuery($id: ID!) {
   review(id: $id) {
-    rating,
+    rating
     content
     game {
-      title,
-      platform,
+      title
+      platform
       reviews {
         rating
       }
@@ -413,7 +408,9 @@ query ReviewQuery($id: ID!) {
 }
 ```
 
-```
+Response:
+
+```json
 {
   "data": {
     "review": {
@@ -421,9 +418,7 @@ query ReviewQuery($id: ID!) {
       "content": "lorem ipsum",
       "game": {
         "title": "Zelda, Tears of the Kingdom",
-        "platform": [
-          "Switch"
-        ],
+        "platform": ["Switch"],
         "reviews": [
           {
             "rating": 10
@@ -444,7 +439,7 @@ A mutation is a generic term in GraphQL for any kind of change (Add/Delete/Edit)
 
 We make a new Type in the `schema.js` called `Mutation`
 
-```
+```graphql
 export const typeDefs = `#graphql
   type Game {
     ...
@@ -462,13 +457,13 @@ export const typeDefs = `#graphql
     # we define a mutation, proving parameters and type (if neccessary) AND Return Type
     deleteGame(id: ID!): [Game]
   }
-`
+`;
 ```
 
 We create a Resolver Object `Mutation` in `resolvers.js`
 And create a function to handle `deleteGame()`
 
-```
+```js
 export const resolvers = {
   Query: {
     ...
@@ -495,11 +490,11 @@ When making the mutation we use the word `mutation` instead of `query`
 
 Mutation:
 
-```
+```graphql
 mutation DeleteGame($id: ID!) {
   deleteGame(id: $id) {
-    id,
-    title,
+    id
+    title
     platform
   }
 }
@@ -507,41 +502,29 @@ mutation DeleteGame($id: ID!) {
 
 Response: (we get back the games list with that specific game removed)
 
-```
+```json
 {
   "data": {
     "deleteGame": [
       {
         "id": "1",
         "title": "Zelda, Tears of the Kingdom",
-        "platform": [
-          "Switch"
-        ]
+        "platform": ["Switch"]
       },
       {
         "id": "3",
         "title": "Elden Ring",
-        "platform": [
-          "PS5",
-          "Xbox",
-          "PC"
-        ]
+        "platform": ["PS5", "Xbox", "PC"]
       },
       {
         "id": "4",
         "title": "Mario Kart",
-        "platform": [
-          "Switch"
-        ]
+        "platform": ["Switch"]
       },
       {
         "id": "5",
         "title": "Pokemon Scarlet",
-        "platform": [
-          "PS5",
-          "Xbox",
-          "PC"
-        ]
+        "platform": ["PS5", "Xbox", "PC"]
       }
     ]
   }
@@ -552,7 +535,7 @@ In `schema.js` inside `Mutation` we can define another mutation function `addGam
 But in this case we need to define the parameter and its type.
 For this we can create a custom `input` type called `AddGameInput` where we describe the shape of the object (a collection of fields)
 
-```
+```graphql
 export const typeDefs = `#graphql
   type Game {
     ...
@@ -586,7 +569,7 @@ In this case the `args` contain `title` & `platform` key/values
 Then add a randomly generated `id`  
 And return the newly added Game as the response
 
-```
+```js
 export const resolvers = {
   Query: {
     ...
@@ -619,10 +602,10 @@ export const resolvers = {
 
 Mutation:
 
-```
+```graphql
 mutation AddGame($game: AddGameInput!) {
   addGame(game: $game) {
-    title,
+    title
     platform
   }
 }
@@ -630,7 +613,7 @@ mutation AddGame($game: AddGameInput!) {
 
 Variables:
 
-```
+```json
 {
   "game": {
     "title": "CS:GO",
@@ -641,14 +624,12 @@ Variables:
 
 Response:
 
-```
+```json
 {
   "data": {
     "addGame": {
       "title": "CS:GO",
-      "platform": [
-        "PC"
-      ]
+      "platform": ["PC"]
     }
   }
 }
@@ -665,7 +646,7 @@ We create `UpdateGameInput` as an `input`
 And we specify that it can optionally have a `title` of type `String`  
 and/or a `platform` of type Array of `String`(required)
 
-```
+```graphql
 export const typeDefs = `#graphql
   type Game {
     ...
@@ -701,7 +682,7 @@ Then we spread in the original game object and then spread in the `args` `update
 And finally re-assign the new array back to the `database.games`  
 Then we find that game in the database and return it
 
-```
+```js
 export const resolvers = {
   Query: {
     ...
@@ -732,11 +713,11 @@ export const resolvers = {
 
 Mutation:
 
-```
-mutation UpdateGame($id: ID!, $updates: UpdateGameInput!,) {
+```graphql
+mutation UpdateGame($id: ID!, $updates: UpdateGameInput!) {
   updateGame(id: $id, updates: $updates) {
-    id,
-    title,
+    id
+    title
     platform
   }
 }
@@ -744,7 +725,7 @@ mutation UpdateGame($id: ID!, $updates: UpdateGameInput!,) {
 
 Variables:
 
-```
+```json
 {
   "id": "5",
   "updates": {
@@ -756,15 +737,13 @@ Variables:
 
 Response:
 
-```
+```json
 {
   "data": {
     "updateGame": {
       "id": "5",
       "title": "CS2",
-      "platform": [
-        "PC"
-      ]
+      "platform": ["PC"]
     }
   }
 }
