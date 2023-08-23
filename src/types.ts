@@ -14,8 +14,8 @@ export type ReviewType = {
   id: string;
   rating: number;
   content: string;
-  author_id: string;
   game_id: string;
+  author_id: string;
 };
 
 export type GameIdType = {

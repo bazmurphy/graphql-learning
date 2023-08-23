@@ -1,6 +1,6 @@
 import {
   GameIdType,
-  AuthorType,
+  // AuthorType,
   ReviewType,
   GameType,
   AddGamePropsType,
@@ -37,15 +37,15 @@ export const resolvers = {
 
     // resolverFunction(parent, args, contextValue, info)
 
-    game(parent: any, args: GameIdType): GameType {
+    game(parent: any, args: GameIdType) {
       return database.games.find((game) => game.id === args.id);
     },
 
-    author(parent: any, args: GameIdType): AuthorType {
+    author(parent: any, args: GameIdType) {
       return database.authors.find((author) => author.id === args.id);
     },
 
-    review(parent: any, args: GameIdType): ReviewType {
+    review(parent: any, args: GameIdType) {
       return database.reviews.find((review) => review.id === args.id);
     },
   },
@@ -78,12 +78,12 @@ export const resolvers = {
   },
 
   Review: {
-    game(parent: ReviewType): GameType {
+    game(parent: ReviewType) {
       // a single review is associated to a single game (1 to 1 relationship)
       return database.games.find((game) => game.id === parent.game_id);
     },
 
-    author(parent: ReviewType): AuthorType {
+    author(parent: ReviewType) {
       // a single review is associated to a single author (1 to 1 relationship)
       return database.authors.find((author) => author.id === parent.author_id);
     },
@@ -107,7 +107,7 @@ export const resolvers = {
       return newGame;
     },
 
-    updateGame(parent: any, args: UpdateGamePropsType): GameType {
+    updateGame(parent: any, args: UpdateGamePropsType) {
       // map over the games array
       database.games = database.games.map((game) => {
         // if the game.id matches the args.id
