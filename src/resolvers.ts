@@ -2,7 +2,12 @@
 // we make resolver functions for each different type that we defined
 // to begin with make a resolver function for the "Query" type
 
-import { Game } from "./types.js";
+import {
+  GameIdType,
+  GameType,
+  AddGamePropsType,
+  UpdateGamePropsType,
+} from "./types.js";
 
 import database from "./database.js";
 
@@ -25,13 +30,16 @@ export const resolvers = {
     // [2] args - an object that contains all GraphQL arguments provided for this field.
     // [3] context - context for supplying context values across all of our resolvers (such as authentication information)
     // [4] info - contains information about the operation's execution state, including the field name, the path to the field from the root, and more.
-    game(parent: any, args: any, contextValue: any, info: any) {
+
+    // resolverFunction(parent, args, contextValue, info)
+
+    game(parent: any, args: GameIdType) {
       return database.games.find((game) => game.id === args.id);
     },
-    author(parent: any, args: any, contextValue: any, info: any) {
+    author(parent: any, args: GameIdType) {
       return database.authors.find((author) => author.id === args.id);
     },
-    review(parent: any, args: any, contextValue: any, info: any) {
+    review(parent: any, args: GameIdType) {
       return database.reviews.find((review) => review.id === args.id);
     },
   },
@@ -47,36 +55,36 @@ export const resolvers = {
     // the parent argument is a reference to the value returned by the previous (or parent) resolver
     // in this case the game() resolver function inside the Query object
     // that parent argument will therefore be a game object, which will have an id, which we can use
-    reviews(parent: any, args: any, contextValue: any, info: any) {
+    reviews(parent: any) {
       return database.reviews.filter((review) => review.game_id === parent.id);
     },
   },
   Author: {
     // get all the reviews from the specific author
     // the return value from author() from the Query object above is the parent argument so we can access the id
-    reviews(parent: any, args: any, contextValue: any, info: any) {
+    reviews(parent: any) {
       return database.reviews.filter(
         (review) => review.author_id === parent.id
       );
     },
   },
   Review: {
-    game(parent: any, args: any, contextValue: any, info: any) {
+    game(parent: any) {
       // a single review is associated to a single game (1 to 1 relationship)
       return database.games.find((game) => game.id === parent.game_id);
     },
-    author(parent: any, args: any, contextValue: any, info: any) {
+    author(parent: any) {
       // a single review is associated to a single author (1 to 1 relationship)
       return database.authors.find((author) => author.id === parent.author_id);
     },
   },
   Mutation: {
-    deleteGame(parent: any, args: any, contextValue: any, info: any) {
+    deleteGame(parent: any, args: GameIdType) {
       database.games = database.games.filter((game) => game.id !== args.id);
       return database.games;
     },
-    addGame(parent: any, args: any, contextValue: any, info: any) {
-      const newGame: Game = {
+    addGame(parent: any, args: AddGamePropsType) {
+      const newGame: GameType = {
         // spread out the args (title & platform)
         // it is .game because thats the name of the variable in Mutation where we specificied addGame(game: AddGameInput!)
         ...args.game,
@@ -86,7 +94,7 @@ export const resolvers = {
       database.games.push(newGame);
       return newGame;
     },
-    updateGame(parent: any, args: any, contextValue: any, info: any) {
+    updateGame(parent: any, args: UpdateGamePropsType): GameType {
       // map over the games array
       database.games = database.games.map((game) => {
         // if the game.id matches the args.id
