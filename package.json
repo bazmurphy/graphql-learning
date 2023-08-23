@@ -1,7 +1,7 @@
 {
-  "name": "graphql",
+  "name": "graphql-learning",
   "version": "1.0.0",
-  "description": "graphql",
+  "description": "graphql-learning",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

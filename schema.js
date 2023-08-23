@@ -43,16 +43,24 @@ export const typeDefs = `#graphql
     id: ID!
     title: String!
     platform: [String!]!
+    # [2] relationship:
+    reviews: [Review!] # we don't need to make this required (use ! on the end) because the game might not have a review
   } 
   type Author {
     id: ID!
     name: String!
     verified: Boolean!
+    # [2] relationship:
+    reviews: [Review!] # we don't need to make this required (use ! on the end) because the author might not have made any reviews
   }
     type Review {
     id: ID!
     rating: Int!
     content: String!
+    # [1] here we define the relationship
+    # the database review objects have game_id and author_id
+    game: Game!
+    author: Author!
   }
   type Query {
     games: [Game] # note they are singular types
